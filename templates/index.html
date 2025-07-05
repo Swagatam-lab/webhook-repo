@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GitHub Webhook Events</title>
+</head>
+<body>
+  <h2>Latest GitHub Events</h2>
+  <div id="events"></div>
+
+  <script>
+    async function fetchEvents() {
+      const res = await fetch('/events');
+      const data = await res.json();
+
+      const container = document.getElementById('events');
+      container.innerHTML = "";  // clear previous data
+
+      data.forEach(event => {
+        const time = new Date(event.timestamp).toUTCString();
+        let text = "";
+
+        if (event.type === "push") {
+          text = `${event.author} pushed to ${event.to_branch} on ${time}`;
+        } else if (event.type === "pull_request") {
+          text = `${event.author} submitted a pull request from ${event.from_branch} to ${event.to_branch} on ${time}`;
+        }
+
+        const p = document.createElement("p");
+        p.innerText = text;
+        container.appendChild(p);
+      });
+    }
+
+    // Load events on page load and every 15 seconds
+    fetchEvents();
+    setInterval(fetchEvents, 15000);
+  </script>
+</body>
+</html>
